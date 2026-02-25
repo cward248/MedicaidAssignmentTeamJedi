@@ -1,10 +1,15 @@
+import Link from "next/dist/client/link";
 import React from "react";
 
+// created by Alec Schulte
+
+
+// In this section I pulled the information and layout from the first sprint powerpoint and created the requirements page based on the outline from that presentation. 
 export const RequirementsPage: React.FC = () => {
   return (
     <section className="home" id="home">
         <div className="container mx-auto text-center">
-            <h1 className="text-6xl font-bold p-16 mb-4">Missouri Medicaid Program Requirements</h1>
+            <h1 className="text-6xl font-bold p-16 mb-4 text-black">Missouri Medicaid Program Requirements</h1>
             <div className="container mx-auto text-left bg-white text-white rounded-2xl max-w-[75%]">
                 <h2 className="text-xl text-white font-bold mb-4 bg-blue-700 rounded-t-2xl p-3">Basic Eligibility</h2>
                 <ul className="list-disc marker:text-blue-700 text-3xl leading-relaxed list-inside mb-4 pl-5 pb-5 text-black">
@@ -34,13 +39,26 @@ export const RequirementsPage: React.FC = () => {
             </div>
             
         </div>
+
+        {/*  added some buttons at the bottom of the requirements page to link to the application, a pdf of the requirements, and a contact page. 
+            The buttons are currently not functional at the moment but they are there for placeholders for the future.  */ }
+
     <div className="flex justify-center gap-6 mt-10 pb-12">
-        <button className="bg-gray-600 text-white font-bold py-3 px-10 rounded-full transition shadow-lg">
-            Back
+        <button className="bg-green-600 hover:bg-blue-800 text-white font-bold py-3 px-10 rounded-full transition shadow-lg">
+            <Link href="/">
+                Start Application
+            </Link>
         </button>
 
-        <button className="bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 px-10 rounded-full transition shadow-lg">
-            Submit
+        <button className="bg-gray-400 hover:bg-blue-800 text-white font-bold py-3 px-10 rounded-full transition shadow-lg">
+            <Link href="/">
+                Requirements PDF
+            </Link>
+        </button>
+        <button className="bg-gray-700 hover:bg-blue-800 text-white font-bold py-3 px-10 rounded-full transition shadow-lg">
+            <Link href="/">
+                Contact
+            </Link>
         </button>
     </div>
 
