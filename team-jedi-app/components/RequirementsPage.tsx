@@ -37,7 +37,18 @@ export const RequirementsPage: React.FC = () => {
                     <li>Employer verification form (if requested)</li>
                 </ul>
             </div>
-            
+            {/* Addresses User story "Age eligibility" - Ward */}
+            <div className="container mx-auto text-left bg-white text-white rounded-2xl max-w-[75%]">
+                <h2 className="text-xl text-white font-bold mb-4 bg-blue-700 rounded-t-2xl p-3">How to determine if you qualify for Medicaid</h2>
+                <ul className="list-disc marker:text-blue-700 text-3xl leading-relaxed list-inside mb-4 pl-5 pb-5 text-black">
+                    <li>In Missouri, Medicaid is administered to residents who meet specific income and resource requirements</li>
+                    <li>Adults under age 65</li>
+                    <li>Infants under one</li>
+                    <li>Pregnant women</li>
+                    <li>Depending on your age, health, and individual needs, you may be eligible for a certain type of MO HealthNet(Missouri Medicaid) coverage. <a href="https://mydss.mo.gov/media/pdf/eligibility-requirements-mo-healthnet-coverage" target="_blank" style={{ textDecoration: 'underline', color: 'blue' }} >Eligibility Requirements for MO HealthNet Coverage</a></li>
+                </ul>
+            </div>
+        
         </div>
 
         {/*  added some buttons at the bottom of the requirements page to link to the application, a pdf of the requirements, and a contact page. 
