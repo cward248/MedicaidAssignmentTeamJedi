@@ -1,4 +1,7 @@
 import React from "react";
+import Link from "next/link";
+
+// Created by Alec Schulte
 
 const Header: React.FC = () => {
   return (
@@ -8,23 +11,25 @@ const Header: React.FC = () => {
                 Team Jedi
             </a>
 
+            {/* fixed the routing for the header to use react Links instead of a tags, which react does not like for app routing.  */}
+
             <nav className="navbar">
-                <a href="/about" className="px-3 py-2 rounded-md text-lg font-medium hover:bg-gray-700">
+                <Link href="/" className="px-3 py-2 rounded-md text-lg font-medium hover:bg-gray-700">
                     Home
-                </a>
-                <a href="/about" className="px-3 py-2 rounded-md text-lg font-medium hover:bg-gray-700">
+                </Link>
+                <Link href="/" className="px-3 py-2 rounded-md text-lg font-medium hover:bg-gray-700">
                     Apply
-                </a>
-                <a href="/requirements/page.tsx" className="px-3 py-2 rounded-md text-lg font-medium hover:bg-gray-700">
-                    Requirments
-                </a>
-                <a href="/contact" className="px-3 py-2 rounded-md text-lg font-medium hover:bg-gray-700"> 
+                </Link>
+                <Link href="/requirements" className="px-3 py-2 rounded-md text-lg font-medium hover:bg-gray-700">
+                    Requirements
+                </Link>
+                <Link href="/" className="px-3 py-2 rounded-md text-lg font-medium hover:bg-gray-700"> 
                     Contact
-                </a>
+                </Link>
             </nav>
         </div>
 
-        </header>
+    </header>
   );
 };
 
