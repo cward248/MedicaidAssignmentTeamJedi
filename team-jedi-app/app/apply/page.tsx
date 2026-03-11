@@ -129,9 +129,27 @@ export default function ApplyPage() {
               </select>
             </div>
 
-                    {/* The upload feature */}
+                    {/* upload feature */}
+            <div className="bg-blue-50 p-4 border-2 border-dashed border-blue-200 rounded">
+  <label className="block mb-2">
+    Upload Pay Stub (PDF or Image) <span className="text-red-600">*</span>
+  </label>
 
+  <input
+    type="file"required className="block w-full font-normal text-black"
+    onChange={(e) => e.target.files && setFile(e.target.files[0])}
+  />
+  {/*   ^ when a user clicks upload, the function returns a array of files, and grabs the first file in index*/}
+</div>
 
+            <button 
+              type="submit" 
+              disabled={loading}
+              className="w-full bg-green-600 text-white py-3 rounded hover:bg-green-700"
+            >
+              {loading ? 'Sending...' : 'Submit Application'}
+            </button>
+            {/* If loading is happening, inform user that app is sending*/}
           </form>
         </div>
       </main>
