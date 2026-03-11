@@ -17,13 +17,13 @@ const Header: React.FC = () => {
                 <Link href="/" className="px-3 py-2 rounded-md text-lg font-medium hover:bg-gray-700">
                     Home
                 </Link>
-                <Link href="/" className="px-3 py-2 rounded-md text-lg font-medium hover:bg-gray-700">
+                <Link href="/apply" className="px-3 py-2 rounded-md text-lg font-medium hover:bg-gray-700">
                     Apply
                 </Link>
                 <Link href="/requirements" className="px-3 py-2 rounded-md text-lg font-medium hover:bg-gray-700">
                     Requirements
                 </Link>
-                <Link href="/" className="px-3 py-2 rounded-md text-lg font-medium hover:bg-gray-700"> 
+                <Link href="/" className="px-3 py-2 rounded-sd text-lg font-medium hover:bg-gray-700"> 
                     Contact
                 </Link>
             </nav>

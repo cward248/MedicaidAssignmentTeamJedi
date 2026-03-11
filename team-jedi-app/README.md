@@ -2,7 +2,18 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+This project uses Supabase for backend services. Before you start the
+server, create a `.env.local` file in the root of the `team-jedi-app`
+folder and define the following variables (replace the placeholders with
+values from your Supabase project):
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-public-api-key
+```
+
+The `NEXT_PUBLIC_` prefix ensures the values are exposed to the browser.
+Once the environment variables are in place, run the development server:
 
 ```bash
 npm run dev
