@@ -71,3 +71,4 @@ npm start
 
 ## Environment Variables
 Create `.env.local`:
+ - to add more steps for team
