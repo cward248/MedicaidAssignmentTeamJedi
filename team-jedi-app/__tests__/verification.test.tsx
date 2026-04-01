@@ -69,4 +69,4 @@ describe('Verification Page', () => {
       expect(screen.getByText('✗ Reject')).toBeInTheDocument();
     });
   });
-});
+}); // to commit
