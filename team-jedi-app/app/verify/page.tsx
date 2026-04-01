@@ -30,7 +30,7 @@ export default function VerifyPage() {
   useEffect(() => {
     fetchPendingApplications();
   }, []);
-
+// Load up apps that are  pending
   const fetchPendingApplications = async () => {
     setLoading(true);
     const { data, error } = await supabase
@@ -49,7 +49,7 @@ export default function VerifyPage() {
 
   const verifyApplication = async (id: string, status: 'approved' | 'rejected') => {
     const updateData: any = { verification_status: status };
-    
+    //save reject reason only when rejected
     if (status === 'rejected' && rejectionReason) {
       updateData.rejection_reason = rejectionReason;
     }
@@ -62,13 +62,18 @@ export default function VerifyPage() {
     if (error) {
       alert('Error updating application: ' + error.message);
     } else {
+      //remove the application from the pending list
+// so the UI stays is in sync after approve/reject actions
+
       alert(`Application ${status === 'approved' ? 'approved' : 'rejected'} successfully!`);
-      fetchPendingApplications();
+      setApplications((currentApplications) =>
+        currentApplications.filter((application) => application.id !== id)
+      );
       setSelectedApp(null);
       setRejectionReason('');
     }
   };
-
+// to allow reviewer to open uploaded doc 
   const viewDocument = (url: string) => {
     const { data } = supabase.storage.from('employment-proof').getPublicUrl(url);
     window.open(data.publicUrl, '_blank');
@@ -79,7 +84,7 @@ export default function VerifyPage() {
       <Header />
       
       <main className="p-10">
-        <h1 className="text-3xl font-bold mb-6">Verify Employment Applications</h1>
+        <h1 className="text-3xl font-bold mb-6 text-black">Verify Employment Applications</h1>
         <p className="mb-6 text-gray-600">
           Review pending applications and verify proof of employment for Medicaid applicants.
         </p>
@@ -107,10 +112,10 @@ export default function VerifyPage() {
             No pending applications to verify.
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid sm:grid-cols-2 gap-6">
             {/* Applications List */}
-            <div className="bg-white rounded-lg shadow p-4">
-              <h2 className="text-xl font-bold mb-4">Pending Applications ({applications.length})</h2>
+            <div className="bg-white rounded-lg shadow p-4 text-black">
+              <h2 className="text-xl font-bold mb-4 text-black">Pending Applications ({applications.length})</h2>
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {applications.map((app) => (
                   <div
@@ -120,7 +125,7 @@ export default function VerifyPage() {
                       selectedApp?.id === app.id ? 'border-blue-500 bg-blue-50' : ''
                     }`}
                   >
-                    <p className="font-semibold">{app.employer_name}</p>
+                    <p className="font-semibold text-black">{app.employer_name}</p>
                     <p className="text-sm text-gray-600">{app.job_title}</p>
                     <p className="text-xs text-gray-400">
                       Submitted: {new Date(app.created_at).toLocaleDateString()}
@@ -131,19 +136,21 @@ export default function VerifyPage() {
             </div>
 
             {/* Verification Detail View */}
+            
+             //Changed the text to black for visibility
             {selectedApp && (
-              <div className="bg-white rounded-lg shadow p-4">
-                <h2 className="text-xl font-bold mb-4">Verify Application</h2>
+              <div className="bg-white rounded-lg shadow p-4 text-black">
+                <h2 className="text-xl font-bold mb-4 text-black">Verify Application</h2>
                 
                 <div className="space-y-3">
                   <div>
-                    <label className="font-semibold">Employer Name:</label>
+                    <label className="font-semibold text-black">Employer Name:</label>
                     <p className="text-gray-700">{selectedApp.employer_name}</p>
                   </div>
                   
                   {/* Employer Tax ID - Added per teacher feedback */}
                   <div>
-                    <label className="font-semibold">
+                    <label className="font-semibold text-black">
                       Employer Tax ID:
                       <span 
                         className="text-blue-500 cursor-help ml-1"
@@ -159,17 +166,17 @@ export default function VerifyPage() {
                   </div>
 
                   <div>
-                    <label className="font-semibold">Job Title:</label>
+                    <label className="font-semibold text-black">Job Title:</label>
                     <p className="text-gray-700">{selectedApp.job_title}</p>
                   </div>
 
                   <div>
-                    <label className="font-semibold">Hours Per Week:</label>
+                    <label className="font-semibold text-black">Hours Per Week:</label>
                     <p className="text-gray-700">{selectedApp.monthly_hours_worked}</p>
                   </div>
 
                   <div>
-                    <label className="font-semibold">Employment Status:</label>
+                    <label className="font-semibold text-black">Employment Status:</label>
                     <p className="text-gray-700">{selectedApp.employment_status}</p>
                   </div>
 
@@ -183,10 +190,10 @@ export default function VerifyPage() {
                   </div>
 
                   <div className="border-t pt-4 mt-4">
-                    <h3 className="font-bold mb-2">Verification Decision</h3>
+                    <h3 className="font-bold mb-2 text-black">Verification Decision</h3>
                     
                     <div className="mb-3">
-                      <label className="block text-sm font-medium mb-1">
+                      <label className="block text-sm font-medium mb-1 text-black">
                         Rejection Reason (if applicable):
                       </label>
                       <textarea
@@ -225,4 +232,3 @@ export default function VerifyPage() {
   );
 }
 
-// verify. TODO add tables to db

@@ -23,6 +23,9 @@ const Header: React.FC = () => {
                 <Link href="/requirements" className="px-3 py-2 rounded-md text-lg font-medium hover:bg-gray-700">
                     Requirements
                 </Link>
+                <Link href="/verify" className="px-3 py-2 rounded-md text-lg font-medium hover:bg-gray-700">
+                    Jedi Verification Portal
+                </Link>
                 <Link href="/" className="px-3 py-2 rounded-sd text-lg font-medium hover:bg-gray-700"> 
                     Contact
                 </Link>

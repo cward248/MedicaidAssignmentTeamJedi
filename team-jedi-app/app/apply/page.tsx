@@ -17,8 +17,10 @@ import Footer from '@/components/Footer';
 
 export default function ApplyPage() {
 
-    //variables for form input
+    //variables for form input\
+    //edited to adjust for Tax ID info
   const [employerName, setEmployerName] = useState('');
+  const [employerTaxId, setEmployerTaxId] = useState('');
   const [jobTitle, setJobTitle] = useState('');
   const [hours, setHours] = useState('');
   const [status, setStatus] = useState('Full-time');
@@ -49,10 +51,12 @@ export default function ApplyPage() {
       const { error: dbError } = await supabase.from('applications').insert([
         {
           employer_name: employerName,
+          employer_tax_id: employerTaxId,
           job_title: jobTitle,
           monthly_hours_worked: parseFloat(hours),
           employment_status: status,
-          document_url: uploadedFilePath
+          document_url: uploadedFilePath,
+          verification_status: 'pending'
         }
       ]);
 
@@ -74,20 +78,64 @@ export default function ApplyPage() {
       <main className="flex-grow p-10 flex justify-center">
         <div className="bg-white text-black p-8 rounded-lg shadow-md w-full max-w-xl border-t-8 border-blue-600">
           <h1 className="text-3xl text-center mb-6">Employment Form</h1>
-          {/*Employment form*/}
+          {/*employment Form*/}
           <form onSubmit={handleSubmit} className="space-y-4">
         
-            <div>
-               
-              <label>
-                Employer Name <span className="text-red-600">*</span>
-              </label>
-              <input 
-                type="text" 
-                className="w-full p-2 border rounded text-black"
-                required
-                onChange={(e) => setEmployerName(e.target.value)} 
-              />
+            <div className="space-y-4">
+
+
+
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-2">
+                  <label htmlFor="employer-name">
+                    Employer Name <span className="text-red-600">*</span>
+                  </label>
+
+                  <div className="group relative inline-block">
+                    <span
+                      className="flex h-4 w-4 cursor-help items-center justify-center rounded-full bg-gray-200 text-[10px] font-bold text-black hover:bg-gray-300"
+                      aria-hidden="true"
+                    >
+                      i
+                    </span>
+                    <div className="invisible absolute left-6 top-0 z-50 w-64 rounded-md bg-black p-2 text-xs text-white shadow-xl group-hover:visible">
+                      Please provide the name of the company asit appears on tax documents
+                    </div>
+                  </div>
+                </div>
+
+                <input
+                  type="text"
+                  id="employer-name"
+                  placeholder="e.g. Acme Corp"
+                  className="block w-full rounded-md border border-gray-300 p-2 text-black shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  required
+                  value={employerName}
+                  onChange={(e) => setEmployerName(e.target.value)}
+                />
+              </div>
+
+
+              {/*added employer tax id input as suggested by teacher*/}
+              <div className="flex flex-col gap-1">
+                <label htmlFor="tax-id">
+
+                  
+                  Employer Tax ID (EIN)
+                </label>
+                <input
+                  type="text"
+                  id="tax-id"
+                  placeholder="XX-XXXXXXX"
+                  className="block w-full rounded-md border border-gray-300 p-2 text-black shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  aria-describedby="tax-id-description"
+                  value={employerTaxId}
+                  onChange={(e) => setEmployerTaxId(e.target.value)}
+                />
+                <p id="tax-id-description" className="text-xs text-gray-500">
+                  Use your 9-digit Employer Identification Number
+                </p>
+              </div>
             </div>
 
             <div>
