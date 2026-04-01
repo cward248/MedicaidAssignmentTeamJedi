@@ -30,6 +30,7 @@ export default function RootLayout({
         <a href="#main-content" className="skip-to-content">
           Skip to main content
         </a>
+        {/* Accessibility feature */}
         {children}
       </body>
     </html>
