@@ -46,4 +46,4 @@ export default function () {
   });
 
   sleep(1);
-}
+} // Run with: k6 run stress-test.js
