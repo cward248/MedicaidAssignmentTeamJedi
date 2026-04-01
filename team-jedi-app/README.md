@@ -45,3 +45,29 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+# Missouri Medicaid Application System
+
+## What it does
+Web-based application for Medicaid applicants to submit employment verification documents, and for state employees to verify eligibility.
+
+## Who will use it
+- Medicaid applicants (submitting proof of employment)
+- Missouri Medicaid employees (verifying applications)
+- System administrators (managing the platform)
+
+## Platform Requirements
+- Node.js 18+ 
+- Next.js 14+
+- Supabase (PostgreSQL backend)
+- Modern web browser (Chrome, Firefox, Safari, Edge)
+
+## Deployment
+\`\`\`bash
+npm install
+npm run build
+npm start
+\`\`\`
+
+## Environment Variables
+Create `.env.local`:
