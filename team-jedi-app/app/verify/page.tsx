@@ -224,3 +224,5 @@ export default function VerifyPage() {
     </div>
   );
 }
+
+// verify. TODO add tables to db
