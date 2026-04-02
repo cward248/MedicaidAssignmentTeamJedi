@@ -56,7 +56,7 @@ export const RequirementsPage: React.FC = () => {
 
     <div className="flex justify-center gap-6 mt-10 pb-12">
         <button className="bg-green-600 hover:bg-blue-800 text-white font-bold py-3 px-10 rounded-full transition shadow-lg">
-            <Link href="/">
+            <Link href="/apply">
                 Start Application
             </Link>
         </button>
