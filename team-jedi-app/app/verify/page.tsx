@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { generateEmployerLink } from '@/lib/employerUtils';
 
 interface Application {
   id: string;
@@ -18,6 +19,7 @@ interface Application {
   created_at: string;
   applicant_name?: string;
   employer_tax_id?: string;
+  employer_verified?: boolean;
 }
 
 export default function VerifyPage() {
@@ -49,29 +51,35 @@ export default function VerifyPage() {
 
   const verifyApplication = async (id: string, status: 'approved' | 'rejected') => {
     const updateData: any = { verification_status: status };
-    //save reject reason only when rejected
+    // save reject reason only when rejected
     if (status === 'rejected' && rejectionReason) {
       updateData.rejection_reason = rejectionReason;
     }
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('applications')
       .update(updateData)
-      .eq('id', id);
+      .eq('id', id)
+      .select()
+      .single();
 
     if (error) {
-      alert('Error updating application: ' + error.message);
-    } else {
-      //remove the application from the pending list
-// so the UI stays is in sync after approve/reject actions
-
-      alert(`Application ${status === 'approved' ? 'approved' : 'rejected'} successfully!`);
-      setApplications((currentApplications) =>
-        currentApplications.filter((application) => application.id !== id)
-      );
-      setSelectedApp(null);
-      setRejectionReason('');
+      console.error('supabase error:', error);
+      alert('Error updating app: ' + error.message);
+      return;
     }
+
+    if (!data) {
+      alert('The application update did not return a valid record. Please try again.');
+      return;
+    }
+
+    alert(`Application ${status === 'approved' ? 'approved' : 'rejected'} successfully!`);
+    setApplications((currentApplications) =>
+      currentApplications.filter((application) => application.id !== id)
+    );
+    setSelectedApp(null);
+    setRejectionReason('');
   };
 // to allow reviewer to open uploaded doc 
   const viewDocument = (url: string) => {
@@ -189,6 +197,19 @@ export default function VerifyPage() {
                     </button>
                   </div>
 
+                  <div>
+                    <button
+                      onClick={() => {
+                        const link = generateEmployerLink(selectedApp.employer_name, selectedApp.employer_tax_id || '');
+                        window.open(link, '_blank');
+                      }}
+                      className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 ml-2"
+                      aria-label="Request employer confirmation"
+                    >
+                      Request Employer Confirmation
+                    </button>
+                  </div>
+
                   <div className="border-t pt-4 mt-4">
                     <h3 className="font-bold mb-2 text-black">Verification Decision</h3>
                     
@@ -205,19 +226,30 @@ export default function VerifyPage() {
                       />
                     </div>
 
-                    <div className="flex gap-3">
-                      <button
-                        onClick={() => verifyApplication(selectedApp.id, 'approved')}
-                        className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
-                      >
-                        ✓ Approve
-                      </button>
-                      <button
-                        onClick={() => verifyApplication(selectedApp.id, 'rejected')}
-                        className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700"
-                      >
-                        ✗ Reject
-                      </button>
+                    <div className="flex flex-col gap-3">
+                      <div className="flex gap-3 flex-wrap">
+                        {selectedApp.employer_verified ? (
+                          <button
+                            onClick={() => verifyApplication(selectedApp.id, 'approved')}
+                            className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
+                          >
+                            Approve
+                          </button>
+                        ) : (
+                          <p className="text-yellow-600 font-semibold">Employer verification is still pending before approval.</p>
+                        )}
+                        <button
+                          onClick={() => verifyApplication(selectedApp.id, 'rejected')}
+                          className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700"
+                        >
+                          Reject
+                        </button>
+                      </div>
+                      {!selectedApp.employer_verified && (
+                        <p className="text-gray-600 text-sm">
+                          You may reject this application now, but approval is blocked until the employer confirms the applicant's employment details.
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
