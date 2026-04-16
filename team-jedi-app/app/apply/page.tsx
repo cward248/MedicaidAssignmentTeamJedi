@@ -99,7 +99,7 @@ export default function ApplyPage() {
                       i
                     </span>
                     <div className="invisible absolute left-6 top-0 z-50 w-64 rounded-md bg-black p-2 text-xs text-white shadow-xl group-hover:visible">
-                      Please provide the name of the company asit appears on tax documents
+                      Please provide the name of the company as it appears on tax documents
                     </div>
                   </div>
                 </div>

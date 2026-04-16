@@ -95,7 +95,7 @@ export default function EmployerVerifyPage(){
         <Header />
         <main className="flex-grow p-10 text-center">
           <h1 className="text-3xl font-bold mb-6 text-black">Invalid Access</h1>
-          <p>Please use the link provided byMedicaid office</p>
+          <p className='text-black'>Please use the link provided byMedicaid office</p>
         </main>
         <Footer />
       </div>
