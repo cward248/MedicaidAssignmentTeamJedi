@@ -15,6 +15,8 @@ import Footer from '@/components/Footer';
 // 
  */
 
+// User story: As a Medicaid applicant, I want to upload proof of my employment or participation in other qualifying programs so that I can receive medical support.
+
 export default function ApplyPage() {
 
     //variables for form input\
@@ -32,6 +34,27 @@ export default function ApplyPage() {
     e.preventDefault();
     setLoading(true);
 
+    // Calis W: adding strict validation for employer information including id, allowed file types, and size
+    if (!employerTaxId.match(/^\d{2}-\d{7}$/)) {
+      alert('Please enter a valid Employer Tax ID (EIN) in the format XX-XXXXXXX');
+      setLoading(false);
+      return;
+    }
+
+    if (file) {
+      const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+      if (!allowedTypes.includes(file.type)) {
+        alert('Invalid file type. Please upload a PDF, JPEG, or PNG file.');
+        setLoading(false);
+        return;
+      }
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        alert('File is too large. Maximum size is 5MB.');
+        setLoading(false);
+        return;
+      }
+    }  
     try {       //upload starts empty
       let uploadedFilePath = '';
 
@@ -42,7 +65,18 @@ export default function ApplyPage() {
           .from('employment-proof')
           .upload(fileName, file);
 
-        if (uploadError) throw uploadError;
+        // if (uploadError) throw uploadError; to include requirement for dumbest error message modifed error
+        if (uploadError) {
+          if (uploadError.message.includes('permission')) {
+            alert("Document Upload Failed: The server is currently unable to save your file. This is a temporary issue. Please wait 30 seconds and click 'Submit' again. If the problem continues, contact our help desk at (1) 800-JEDI.");
+          } else if (uploadError.message.includes('network')) {
+            alert("Connection Lost: We cannot reach the document server. Please check your internet connection and then click 'Retry' at the bottom of this page. Your progress has been saved.");
+          } else {
+            alert("An unexpected error occurred while uploading your document. Please try again. If this happens twice, call our support line.");
+          }
+          setLoading(false);
+          return;
+        }
         uploadedFilePath = data.path;
       }
             // Insert form data into the applications table
