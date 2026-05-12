@@ -2,8 +2,9 @@
 
 // Calis Ward sprint 4
 
-import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabaseClient';
+import { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import { getSupabaseBrowserClient } from '@/lib/browser-client';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { generateEmployerLink } from '@/lib/employerUtils';
@@ -23,6 +24,9 @@ interface Application {
 }
 
 export default function VerifyPage() {
+  const router = useRouter();
+  const supabase = useMemo(() => getSupabaseBrowserClient() as any, []);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [applications, setApplications] = useState<Application[]>([]);
   const [preVerifiedApplicants, setPreVerifiedApplicants] = useState<Application[]>([]);
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
@@ -31,8 +35,15 @@ export default function VerifyPage() {
   const [hoverInfo, setHoverInfo] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchPendingApplications();
-    fetchPreVerifiedApplicants();
+    supabase.auth.getUser().then(({ data }: { data: { user: any } | null }) => {
+      if (!data?.user) {
+        router.replace('/email-password');
+      } else {
+        setCheckingAuth(false);
+        fetchPendingApplications();
+        fetchPreVerifiedApplicants();
+      }
+    });
   }, []);
 
   const fetchPendingApplications = async () => {
@@ -105,6 +116,10 @@ export default function VerifyPage() {
       <Header />
       
       <main className="p-10">
+        {checkingAuth ? (
+          <p>Checking authentication...</p>
+        ) : (
+        <>
         <h1 className="text-3xl font-bold mb-6 text-black">Verify Employment Applications</h1>
         <p className="mb-6 text-gray-600">
           Review pending applications and verify proof of employment for Medicaid applicants.
@@ -294,6 +309,8 @@ export default function VerifyPage() {
               </div>
             )}
           </div>
+        )}
+      </>
         )}
       </main>
 

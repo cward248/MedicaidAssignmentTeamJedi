@@ -49,7 +49,7 @@ export default function AuthHeader() {
                 <Link href="/apply" className="text-[1.0rem] text-slate-200 hover:text-white">
                   Submit Application
                 </Link>
-                <Link href="/employer-verify" className="rounded-full border border-slate-700/60 bg-slate-900/60 px-3 py-1 text-[1.0rem] text-slate-200">
+                <Link href="/verify" className="rounded-full border border-slate-700/60 bg-slate-900/60 px-3 py-1 text-[1.0rem] text-slate-200">
                   Dashboard
                 </Link>
               </>
