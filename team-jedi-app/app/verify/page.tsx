@@ -51,7 +51,7 @@ export default function VerifyPage() {
     const { data, error } = await supabase
       .from('applications')
       .select('*')
-      .eq('verification_status', 'pending')
+      .in('verification_status', ['pending', 'employer_verified'])
       .order('created_at', { ascending: false });
 
     if (error) {

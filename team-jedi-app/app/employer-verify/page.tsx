@@ -69,6 +69,9 @@ export default function EmployerVerifyPage(){
     if(notes) {
       updateData.employer_notes = notes;
     }
+    if (confirmed) {
+      updateData.verification_status = 'employer_verified';
+    }
     updateData.employer_verification_date = new Date().toISOString();
 
     const { error } = await supabase
