@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { supabase } from '@/lib/supabaseClient';
+import { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import { getSupabaseBrowserClient } from '@/lib/browser-client';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -18,6 +19,20 @@ import Footer from '@/components/Footer';
 // User story: As a Medicaid applicant, I want to upload proof of my employment or participation in other qualifying programs so that I can receive medical support.
 
 export default function ApplyPage() {
+  const router = useRouter();
+  const supabase = useMemo(() => getSupabaseBrowserClient() as any, []);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }: { data: { user: any } | null }) => {
+      if (!data?.user) {
+        router.replace('/email-password');
+      } else {
+        setCheckingAuth(false);
+      }
+    });
+  }, []);
+
   // Applicant Information State
   const [applicantName, setApplicantName] = useState('');
   const [applicantAddress, setApplicantAddress] = useState('');
@@ -127,6 +142,18 @@ export default function ApplyPage() {
       setLoading(false);
     }
   };
+
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex flex-col text-black font-bold">
+        <Header />
+        <main className="flex-grow p-10 flex justify-center">
+          <p>Checking authentication...</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col text-black font-bold">
