@@ -209,6 +209,16 @@ export default function VerifyPage() {
 
     alert(`Full application ${status === 'approved' ? 'approved' : 'rejected'} successfully!`);
 
+    const targetUserId = data?.[0]?.applicant_id;
+    if (targetUserId) {
+      await supabase.from('notifications').insert({
+        user_id: targetUserId,
+        message: `Your application has been ${status}.`,
+        type: status === 'approved' ? 'success' : 'warning',
+        read: false
+      });
+    }
+
     setApplications((currentApplications) =>
       currentApplications.filter(
         (application) =>
