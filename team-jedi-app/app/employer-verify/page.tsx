@@ -8,7 +8,6 @@ import { useRouter } from 'next/navigation';
 import { getSupabaseBrowserClient } from '@/lib/browser-client';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { generateEmployerLink } from '@/lib/employerUtils';
 
 interface Application {
   id: string;
@@ -62,17 +61,38 @@ export default function VerifyPage() {
 
     if (error) {
       console.error('Error fetching applications:', error);
-    } else {
-      const uniqueApplicants = Object.values(
-        (data || []).reduce((acc: Record<string, Application>, app: Application) => {
-          if (!acc[app.applicant_id_number]) {
-            acc[app.applicant_id_number] = app;
-          }
-          return acc;
-        }, {})
+      setLoading(false);
+      return;
+    }
+
+    const allPending = data || [];
+
+    const uniqueApplicants = Object.values(
+      allPending.reduce((acc: Record<string, Application>, app: Application) => {
+        if (!acc[app.applicant_id_number]) {
+          acc[app.applicant_id_number] = app;
+        }
+        return acc;
+      }, {})
+    );
+
+    setApplications(uniqueApplicants);
+
+    if (uniqueApplicants.length > 0) {
+      const firstApplicant = uniqueApplicants[0];
+
+      const firstApplicantRecords = allPending.filter(
+        (app: Application) =>
+          app.applicant_id_number === firstApplicant.applicant_id_number
       );
 
-      setApplications(uniqueApplicants);
+      setSelectedApp(firstApplicantRecords[0]);
+      setRelatedApplications(firstApplicantRecords);
+      setEmploymentNotes(firstApplicantRecords[0]?.employer_notes || '');
+    } else {
+      setSelectedApp(null);
+      setRelatedApplications([]);
+      setEmploymentNotes('');
     }
 
     setLoading(false);
@@ -102,9 +122,11 @@ export default function VerifyPage() {
       return;
     }
 
-    setSelectedApp(app);
-    setEmploymentNotes(app.employer_notes || '');
-    setRelatedApplications(data || []);
+    const records = data || [];
+
+    setSelectedApp(records[0] || app);
+    setRelatedApplications(records);
+    setEmploymentNotes(records[0]?.employer_notes || '');
   };
 
   const verifyEmployment = async (id: string, confirmed: boolean) => {
@@ -176,7 +198,6 @@ export default function VerifyPage() {
       .select();
 
     if (error) {
-      console.error('supabase error:', error);
       alert('Error updating application: ' + error.message);
       return;
     }
@@ -190,7 +211,8 @@ export default function VerifyPage() {
 
     setApplications((currentApplications) =>
       currentApplications.filter(
-        (application) => application.applicant_id_number !== selectedApp.applicant_id_number
+        (application) =>
+          application.applicant_id_number !== selectedApp.applicant_id_number
       )
     );
 
@@ -346,18 +368,6 @@ export default function VerifyPage() {
                         </button>
                       </div>
 
-                      <div>
-                        <button
-                          onClick={() => {
-                            const link = generateEmployerLink(selectedApp.id);
-                            window.open(link, '_blank');
-                          }}
-                          className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
-                        >
-                          Request Employer Confirmation
-                        </button>
-                      </div>
-
                       <div className="border-t pt-4 mt-4">
                         <h3 className="font-bold mb-2 text-black">
                           Employment Records for This Applicant
@@ -438,42 +448,34 @@ export default function VerifyPage() {
                           Final Application Decision
                         </h3>
 
-                        <div className="mb-3">
-                          <label className="block text-sm font-medium mb-1 text-black">
-                            Rejection Reason:
-                          </label>
+                        <textarea
+                          className="w-full p-2 border rounded"
+                          rows={3}
+                          value={rejectionReason}
+                          onChange={(e) => setRejectionReason(e.target.value)}
+                          placeholder="Explain why this application is being rejected..."
+                        />
 
-                          <textarea
-                            className="w-full p-2 border rounded"
-                            rows={3}
-                            value={rejectionReason}
-                            onChange={(e) => setRejectionReason(e.target.value)}
-                            placeholder="Explain why this application is being rejected..."
-                          />
-                        </div>
-
-                        <div className="flex flex-col gap-3">
-                          <div className="flex gap-3 flex-wrap">
-                            {allEmploymentsVerified ? (
-                              <button
-                                onClick={() => verifyFullApplication('approved')}
-                                className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
-                              >
-                                Approve Full Application
-                              </button>
-                            ) : (
-                              <p className="text-yellow-600 font-semibold">
-                                All employment records must be employer verified before final approval.
-                              </p>
-                            )}
-
+                        <div className="flex gap-3 flex-wrap mt-3">
+                          {allEmploymentsVerified ? (
                             <button
-                              onClick={() => verifyFullApplication('rejected')}
-                              className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700"
+                              onClick={() => verifyFullApplication('approved')}
+                              className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
                             >
-                              Reject Full Application
+                              Approve Full Application
                             </button>
-                          </div>
+                          ) : (
+                            <p className="text-yellow-600 font-semibold">
+                              All employment records must be employer verified before final approval.
+                            </p>
+                          )}
+
+                          <button
+                            onClick={() => verifyFullApplication('rejected')}
+                            className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700"
+                          >
+                            Reject Full Application
+                          </button>
                         </div>
                       </div>
                     </div>
