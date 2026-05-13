@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/browser-client";
+import NotificationSystem from "./NotificationSystem";
 import type { User } from "@supabase/supabase-js";
 
 export default function AuthHeader() {
@@ -64,6 +65,7 @@ export default function AuthHeader() {
         <div className="flex items-center gap-3 text-sm">
           {currentUser ? (
             <>
+              <NotificationSystem userId={currentUser.id} />
               <span className="text-slate-300">{currentUser.email ?? currentUser.id}</span>
               <button
                 type="button"
