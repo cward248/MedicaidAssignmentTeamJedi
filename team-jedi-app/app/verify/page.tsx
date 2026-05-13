@@ -2,8 +2,9 @@
 
 // Calis Ward sprint 4
 
-import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabaseClient';
+import { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import { getSupabaseBrowserClient } from '@/lib/browser-client';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { generateEmployerLink } from '@/lib/employerUtils';
@@ -23,22 +24,34 @@ interface Application {
 }
 
 export default function VerifyPage() {
+  const router = useRouter();
+  const supabase = useMemo(() => getSupabaseBrowserClient() as any, []);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [applications, setApplications] = useState<Application[]>([]);
+  const [preVerifiedApplicants, setPreVerifiedApplicants] = useState<Application[]>([]);
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
   const [loading, setLoading] = useState(true);
   const [rejectionReason, setRejectionReason] = useState('');
   const [hoverInfo, setHoverInfo] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchPendingApplications();
+    supabase.auth.getUser().then(({ data }: { data: { user: any } | null }) => {
+      if (!data?.user) {
+        router.replace('/email-password');
+      } else {
+        setCheckingAuth(false);
+        fetchPendingApplications();
+        fetchPreVerifiedApplicants();
+      }
+    });
   }, []);
-// Load up apps that are  pending
+
   const fetchPendingApplications = async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from('applications')
       .select('*')
-      .eq('verification_status', 'pending')
+      .in('verification_status', ['pending', 'employer_verified'])
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -49,9 +62,19 @@ export default function VerifyPage() {
     setLoading(false);
   };
 
+  const fetchPreVerifiedApplicants = async () => {
+    const { data, error } = await supabase
+      .from('applications')
+      .select('*')
+      .eq('verification_status', 'pre_verified');
+    
+    if (!error && data) {
+      setPreVerifiedApplicants(data);
+    }
+  };
+
   const verifyApplication = async (id: string, status: 'approved' | 'rejected') => {
     const updateData: any = { verification_status: status };
-    // save reject reason only when rejected
     if (status === 'rejected' && rejectionReason) {
       updateData.rejection_reason = rejectionReason;
     }
@@ -80,8 +103,9 @@ export default function VerifyPage() {
     );
     setSelectedApp(null);
     setRejectionReason('');
+    fetchPreVerifiedApplicants(); // Refresh pre-verified list
   };
-// to allow reviewer to open uploaded doc 
+
   const viewDocument = (url: string) => {
     const { data } = supabase.storage.from('employment-proof').getPublicUrl(url);
     window.open(data.publicUrl, '_blank');
@@ -92,12 +116,40 @@ export default function VerifyPage() {
       <Header />
       
       <main className="p-10">
+        {checkingAuth ? (
+          <p>Checking authentication...</p>
+        ) : (
+        <>
         <h1 className="text-3xl font-bold mb-6 text-black">Verify Employment Applications</h1>
         <p className="mb-6 text-gray-600">
           Review pending applications and verify proof of employment for Medicaid applicants.
         </p>
 
-        {/* Info hover tooltip example for teacher's note */}
+        {/* Pre-verified Applicants Notification */}
+        {preVerifiedApplicants.length > 0 && (
+          <div className="bg-green-50 border border-green-400 rounded-lg p-4 mb-6">
+            <h3 className="text-green-800 font-semibold mb-2">✨ Pre-Verified Applicants</h3>
+            <p className="text-green-700 mb-3">
+              The following applicants have been automatically verified through Missouri tax records 
+              and do not require additional employment verification.
+            </p>
+            <div className="space-y-2">
+              {preVerifiedApplicants.map(app => (
+                <div key={app.id} className="bg-white p-3 rounded border border-green-200">
+                  <p><strong>{app.applicant_name || 'Applicant'}</strong> - Employment already verified by MO tax records</p>
+                  <button
+                    onClick={() => verifyApplication(app.id, 'approved')}
+                    className="mt-2 bg-green-600 text-white px-4 py-1 rounded text-sm"
+                  >
+                    Confirm Approval
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Info hover tooltip */}
         <div className="relative inline-block mb-6">
           <span 
             className="text-blue-600 cursor-help border-b border-dotted border-blue-600"
@@ -144,19 +196,21 @@ export default function VerifyPage() {
             </div>
 
             {/* Verification Detail View */}
-            
-             //Changed the text to black for visibility
             {selectedApp && (
               <div className="bg-white rounded-lg shadow p-4 text-black">
                 <h2 className="text-xl font-bold mb-4 text-black">Verify Application</h2>
                 
                 <div className="space-y-3">
                   <div>
+                    <label className="font-semibold text-black">Applicant Name:</label>
+                    <p className="text-gray-700">{selectedApp.applicant_name || 'Not provided'}</p>
+                  </div>
+
+                  <div>
                     <label className="font-semibold text-black">Employer Name:</label>
                     <p className="text-gray-700">{selectedApp.employer_name}</p>
                   </div>
                   
-                  {/* Employer Tax ID - Added per teacher feedback */}
                   <div>
                     <label className="font-semibold text-black">
                       Employer Tax ID:
@@ -204,7 +258,6 @@ export default function VerifyPage() {
                         window.open(link, '_blank');
                       }}
                       className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 ml-2"
-                      aria-label="Request employer confirmation"
                     >
                       Request Employer Confirmation
                     </button>
@@ -257,10 +310,11 @@ export default function VerifyPage() {
             )}
           </div>
         )}
+      </>
+        )}
       </main>
 
       <Footer />
     </div>
   );
 }
-
