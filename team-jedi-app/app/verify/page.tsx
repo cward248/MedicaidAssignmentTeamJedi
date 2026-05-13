@@ -1,6 +1,7 @@
 'use client';
 
 // Calis Ward sprint 4
+// Alec Schulte Final Presentation Edits
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
@@ -11,6 +12,7 @@ import { generateEmployerLink } from '@/lib/employerUtils';
 
 interface Application {
   id: string;
+  applicant_id_number: string;
   employer_name: string;
   job_title: string;
   monthly_hours_worked: number;
@@ -51,7 +53,7 @@ export default function VerifyPage() {
     const { data, error } = await supabase
       .from('applications')
       .select('*')
-      .in('verification_status', ['pending', 'employer_verified'])
+      .eq('verification_status', 'pending')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -103,7 +105,7 @@ export default function VerifyPage() {
     );
     setSelectedApp(null);
     setRejectionReason('');
-    fetchPreVerifiedApplicants(); // Refresh pre-verified list
+    fetchPreVerifiedApplicants();
   };
 
   const viewDocument = (url: string) => {
@@ -180,7 +182,22 @@ export default function VerifyPage() {
                 {applications.map((app) => (
                   <div
                     key={app.id}
-                    onClick={() => setSelectedApp(app)}
+                    onClick={async () => {
+                      const { data, error } = await supabase
+                        .from('applications')
+                        .select('*')
+                        .eq('applicant_id_number', app.applicant_id_number)
+                        .order('created_at', { ascending: false });
+
+                      if (error) {
+                        console.error('Error loading related applications:', error);
+                        return;
+                      }
+
+                      if (data && data.length > 0) {
+                        setSelectedApp(data[0]);
+                      }
+                    }}
                     className={`p-3 border rounded cursor-pointer hover:bg-gray-50 ${
                       selectedApp?.id === app.id ? 'border-blue-500 bg-blue-50' : ''
                     }`}
@@ -254,7 +271,7 @@ export default function VerifyPage() {
                   <div>
                     <button
                       onClick={() => {
-                        const link = generateEmployerLink(selectedApp.employer_name, selectedApp.employer_tax_id || '');
+                        const link = generateEmployerLink(selectedApp.id);
                         window.open(link, '_blank');
                       }}
                       className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 ml-2"

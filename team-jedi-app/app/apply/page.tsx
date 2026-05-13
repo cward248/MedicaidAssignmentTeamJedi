@@ -1,14 +1,5 @@
 'use client';
 
-<<<<<<< HEAD
-import { useEffect, useState } from "react";
-import type { User } from "@supabase/supabase-js";
-import { supabase } from "@/lib/supabaseClient";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-
-export default function ApplyPage() {
-=======
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { getSupabaseBrowserClient } from '@/lib/browser-client';
@@ -16,6 +7,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 //Created by David Huling- Jedi
+// Alec Schulte Final Presentation Edits
 
 /**
  * 
@@ -31,16 +23,19 @@ export default function ApplyPage() {
   const router = useRouter();
   const supabase = useMemo(() => getSupabaseBrowserClient() as any, []);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }: { data: { user: any } | null }) => {
       if (!data?.user) {
         router.replace('/email-password');
       } else {
+        setUser(data.user);
         setCheckingAuth(false);
       }
     });
-  }, []);
+  }, [supabase, router]);
 
   // Applicant Information State
   const [applicantName, setApplicantName] = useState('');
@@ -51,7 +46,6 @@ export default function ApplyPage() {
   const [isStudent, setIsStudent] = useState(false);
 
   // Employment Information State
->>>>>>> 20d4ca8447d54bb772f23637cb35b9ac6f19b7cb
   const [employerName, setEmployerName] = useState('');
   const [employerTaxId, setEmployerTaxId] = useState('');
   const [jobTitle, setJobTitle] = useState('');
@@ -59,39 +53,6 @@ export default function ApplyPage() {
   const [status, setStatus] = useState('Full-time');
   const [file, setFile] = useState<File | null>(null);
 
-<<<<<<< HEAD
-  const [loading, setLoading] = useState(false);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [sessionLoading, setSessionLoading] = useState(true);
-
-  // ✅ FIXED SESSION HANDLING
-  useEffect(() => {
-    const loadUser = async () => {
-      const { data, error } = await supabase.auth.getUser();
-
-      if (error) {
-        console.error("Auth error:", error.message);
-      }
-
-      setCurrentUser(data.user ?? null);
-      setSessionLoading(false);
-    };
-
-    loadUser();
-
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setCurrentUser(session?.user ?? null);
-      }
-    );
-
-    return () => {
-      listener.subscription.unsubscribe();
-    };
-  }, []);
-
-  // ✅ FIXED SUBMIT (uses reliable user check)
-=======
   const validateApplicantInfo = () => {
     if (!applicantName.match(/^[a-zA-Z\s]{2,100}$/)) {
       alert('Please enter a valid full name (letters and spaces only, 2-100 characters)');
@@ -104,30 +65,10 @@ export default function ApplyPage() {
     return true;
   };
 
->>>>>>> 20d4ca8447d54bb772f23637cb35b9ac6f19b7cb
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
 
-<<<<<<< HEAD
-    if (sessionLoading) {
-      alert("Please wait, checking session...");
-      return;
-    }
-
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-      alert("You must be signed in to submit an application.");
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      let uploadedFilePath = '';
-
-      // Upload file if exists
-=======
     if (!validateApplicantInfo()) {
       setLoading(false);
       return;
@@ -157,7 +98,6 @@ export default function ApplyPage() {
     try {
       let uploadedFilePath = '';
 
->>>>>>> 20d4ca8447d54bb772f23637cb35b9ac6f19b7cb
       if (file) {
         const fileName = `${Date.now()}-${file.name}`;
 
@@ -165,10 +105,6 @@ export default function ApplyPage() {
           .from('employment-proof')
           .upload(fileName, file);
 
-<<<<<<< HEAD
-        if (uploadError) throw uploadError;
-
-=======
         if (uploadError) {
           if (uploadError.message.includes('permission')) {
             alert("Document Upload Failed: The server is currently unable to save your file. This is a temporary issue. Please wait 30 seconds and click 'Submit' again. If the problem continues, contact our help desk at (1) 800-JEDI.");
@@ -180,7 +116,6 @@ export default function ApplyPage() {
           setLoading(false);
           return;
         }
->>>>>>> 20d4ca8447d54bb772f23637cb35b9ac6f19b7cb
         uploadedFilePath = data.path;
       }
 
@@ -205,25 +140,10 @@ export default function ApplyPage() {
         }
       ]);
 
-<<<<<<< HEAD
-      if (dbError) throw dbError;
-
-      alert("Success! Your application has been submitted.");
-
-      // Optional reset
-      setEmployerName('');
-      setEmployerTaxId('');
-      setJobTitle('');
-      setHours('');
-      setFile(null);
-
-    } catch (error: any) {
-=======
       if(dbError) throw dbError;
       alert("Success! Your application has been submitted.");
 
     } catch(error: any){
->>>>>>> 20d4ca8447d54bb772f23637cb35b9ac6f19b7cb
       alert("Error: " + error.message);
     } finally {
       setLoading(false);
@@ -247,71 +167,6 @@ export default function ApplyPage() {
       <Header />
 
       <main className="flex-grow p-10 flex justify-center">
-<<<<<<< HEAD
-        <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-xl border-t-8 border-blue-600">
-          <h1 className="text-3xl text-center mb-6">Employment Form</h1>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-
-            <input
-              type="text"
-              placeholder="Employer Name"
-              className="w-full p-2 border rounded"
-              required
-              value={employerName}
-              onChange={(e) => setEmployerName(e.target.value)}
-            />
-
-            <input
-              type="text"
-              placeholder="Employer Tax ID (EIN)"
-              className="w-full p-2 border rounded"
-              value={employerTaxId}
-              onChange={(e) => setEmployerTaxId(e.target.value)}
-            />
-
-            <input
-              type="text"
-              placeholder="Job Title"
-              className="w-full p-2 border rounded"
-              required
-              value={jobTitle}
-              onChange={(e) => setJobTitle(e.target.value)}
-            />
-
-            <input
-              type="number"
-              placeholder="Hours Per Week"
-              className="w-full p-2 border rounded"
-              required
-              value={hours}
-              onChange={(e) => setHours(e.target.value)}
-            />
-
-            <select
-              className="w-full p-2 border rounded"
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-            >
-              <option value="Full-time">Full time</option>
-              <option value="Part-time">Part time</option>
-              <option value="Self-employed">Self employed</option>
-            </select>
-
-            <input
-              type="file"
-              required
-              onChange={(e) => e.target.files && setFile(e.target.files[0])}
-            />
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-green-600 text-white py-3 rounded"
-            >
-              {loading ? "Sending..." : "Submit Application"}
-            </button>
-=======
         <div className="bg-white text-black p-8 rounded-lg shadow-md w-full max-w-xl border-t-8 border-blue-600">
           <h1 className="text-3xl text-center mb-6">Medicaid Application</h1>
           
@@ -501,7 +356,6 @@ export default function ApplyPage() {
                 {loading ? 'Sending...' : 'Submit Application'}
               </button>
             </div>
->>>>>>> 20d4ca8447d54bb772f23637cb35b9ac6f19b7cb
           </form>
         </div>
       </main>
@@ -510,3 +364,4 @@ export default function ApplyPage() {
     </div>
   );
 }
+
