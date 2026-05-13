@@ -339,7 +339,7 @@ export default function PoliticianView() {
                   </button>
                 </div>
                 
-                <div className="space-y-4">
+                <div className="space-y-4 text-black">
                   <div className="border-b pb-3">
                     <h3 className="font-semibold text-lg text-black mb-2">Applicant Information</h3>
                     <p><strong>Name:</strong> {selectedApp.applicant_name || 'Not provided'}</p>
