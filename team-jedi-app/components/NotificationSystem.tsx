@@ -5,7 +5,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabaseClient';
+import { getSupabaseBrowserClient } from '@/lib/browser-client';
 
 interface Notification {
   id: string;
@@ -16,6 +16,7 @@ interface Notification {
 }
 
 export default function NotificationSystem({ userId }: { userId: string }) {
+  const supabase = getSupabaseBrowserClient() as any;
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const unreadCount = notifications.filter(n => !n.read).length;
@@ -40,7 +41,7 @@ export default function NotificationSystem({ userId }: { userId: string }) {
       .channel('notifications')
       .on('postgres_changes', 
         { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
-        (payload) => {
+        (payload: any) => {
           setNotifications(prev => [payload.new as Notification, ...prev]);
         }
       )
@@ -62,13 +63,11 @@ export default function NotificationSystem({ userId }: { userId: string }) {
     );
   };
 
-  if (unreadCount === 0) return null;
-
   return (
     <div className="relative">
       <button
         onClick={() => setShowDropdown(!showDropdown)}
-        className="relative p-2 text-gray-600 hover:text-gray-800"
+        className="relative p-2 text-slate-300 hover:text-white"
       >
         <span className="sr-only">Notifications</span>
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
